@@ -1,0 +1,28 @@
+MaterialDef SimpleColor {
+
+    MaterialParameters {
+        Color Color : 1.0 1.0 1.0 1.0
+        Float SinFreq : 1.0
+        Float WaveSpeed : 1.0
+        Float WaveQuant : 1.0
+    }
+
+    Technique {
+        VertexShader   GLSL310 GLSL300 GLSL150 GLSL100 :   Shaders/Wave.vert
+        FragmentShader GLSL310 GLSL300 GLSL150 GLSL100 : Shaders/Wave.frag
+
+        WorldParameters {
+            WorldViewProjectionMatrix
+            ViewProjectionMatrix
+            WorldMatrix
+            ViewMatrix
+            Time
+        }
+
+        Defines {
+            HAS_COLOR : Color
+            HAS_SINFREQ : SinFreq
+            HAS_WAVESPEED : WaveSpeed
+            HAS_WAVEQUANT : WaveQuant
+        }
+    }
