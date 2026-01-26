@@ -42,15 +42,16 @@
       (case name 
         ::forward 
           (let [phys-pos (.getPhysicsLocation player-model-control)
-                new-z (+ -0.1 (.-z phys-pos))
                 ;; forward-vec (.getPhysicsRotation player-model-control)
                 ;; _ (.multLocal forward-vec (jme/vec3 0 0 (* move-speed value tpf)))]
                 ]
             (.set phys-pos (float (.-x phys-pos)) 
                           (float (.-y phys-pos)) 
-                          (float new-z))              
+                          (float (+ -0.1 (.-z phys-pos))))              
             (.setPhysicsLocation player-model-control phys-pos))
-          nil
+        ;; ::cam-left
+        ;;   (let [])
+        nil
 ))))))
 
 (defn init-keys []

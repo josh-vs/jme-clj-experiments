@@ -8,7 +8,6 @@
    (com.jme3.bullet BulletAppState)
    (com.jme3.bullet.collision.shapes BoxCollisionShape)  
    (com.jme3.bullet.control RigidBodyControl)
-   (com.jme3.math Vector3f)
    ))
 
 (defn init []
@@ -41,7 +40,9 @@
         :player-model-control player-model-control
         :bullet-app-state bullet-app-state
         }
-        )))
+)))
+
+(def angle (atom 0.0))
 
 (defn update-all [tpf]
   (let  [{:keys [player-model player-model-control]} (jme/get-state)]
@@ -49,17 +50,24 @@
       (let [
           phys-pos (.getPhysicsLocation player-model-control)
           current-cam-pos (.getLocation (jme/cam))
-          target-cam-pos (.add phys-pos (jme/vec3 0 10 -20))
           new-cam-pos (jme/vec3 0 0 0)
+          cam-rot (.getRotation (jme/cam))
+          cam-x (.getX cam-rot)
+          _ (swap! angle + (* tpf 0.2))
+          offset-x (* 15.0 (Math/cos @angle))
+          offset-z (* 15.0 (Math/sin @angle))
+          target-cam-pos (jme/vec3 (+ (.-x phys-pos) offset-x) 
+                            (+ (.-y phys-pos) 20.0) 
+                            (+ (.-z phys-pos) offset-z))
           ]
         (jme/set* player-model :local-translation phys-pos)
         (let [lerp-factor (* tpf 10.0)]
         (.interpolateLocal new-cam-pos current-cam-pos target-cam-pos 
                         (min lerp-factor 1.0)))
-        ;; Set camera position and look-at
-        (.setLocation (jme/cam) new-cam-pos)
-        (.lookAt (jme/cam) phys-pos (jme/vec3 0 1 0))
-        (println "x:" (.-x phys-pos) "y:" (.-y phys-pos) "z:" (.-z phys-pos))
+        (.setLocation (jme/cam) target-cam-pos)
+        (.lookAt (jme/cam) phys-pos (jme/vec3 0 0 0))
+        (println "cam rotation:" cam-x)
+        ;; (println "x:" (.-x phys-pos) "y:" (.-y phys-pos) "z:" (.-z phys-pos))
 ))))
 
 (jme/unbind-app #'app)
