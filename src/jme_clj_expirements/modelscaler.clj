@@ -44,9 +44,9 @@
         (jme/set* :local-translation (jme/vec3 -5 0 0))
         (jme/add-to-root)))
   
-  (println "=== LOADING FBX ===")
-  (let [character (jme/load-model "Models/CharModel4.gltf")]
-    (println "FBX loaded")
+  (println "=== LOADING GLTF ===")
+  (let [character (jme/load-model "Models/Terrain1.gltf")]
+    (println "GLTF loaded")
     (reset! character-ref character)
     (let [bright-mat (jme/material "Common/MatDefs/Misc/Unshaded.j3md")]
       (-> bright-mat
