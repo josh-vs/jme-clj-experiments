@@ -58,7 +58,7 @@
         (-> model
             (jme/set* :material mat)
             (jme/set* :local-scale (float 1.0))
-            (jme/set* :local-translation (jme/vec3 0 -5 -5))
+            (jme/set* :local-translation (jme/vec3 0 0 -5))
             (jme/set* :shadow-mode com.jme3.renderer.queue.RenderQueue$ShadowMode/CastAndReceive)
             ;; (jme/set* :local-rotation (com.jme3.math.Quaternion. (float 0) (float 0) (float 0) (float 0)))
             (jme/add-to-root)

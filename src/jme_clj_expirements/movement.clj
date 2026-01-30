@@ -6,7 +6,6 @@
   (:import
    [com.jme3.input KeyInput MouseInput]
    [com.jme3.anim AnimComposer]
-   [com.jme3.bullet.control BetterCharacterControl]
    ))
 
 (defn find-anim-composer [spatial]
@@ -35,6 +34,17 @@
           nil)))
 )))
 
+(def angle (atom 0.0))
+(def angle-vertical (atom 0.5))
+
+(defn update-camera-position [player-pos angle-h angle-v distance]
+  (let [offset-x (* distance (Math/cos angle-h) (Math/cos angle-v))
+        offset-y (* distance (Math/sin angle-v))
+        offset-z (* distance (Math/sin angle-h) (Math/cos angle-v))]
+    (jme/vec3 (+ (.-x player-pos) offset-x)
+              (+ (.-y player-pos) offset-y)
+              (+ (.-z player-pos) offset-z))))
+
 (defn on-analog-listner [] (jme/analog-listener
   (fn [name pressed? tpf]
     (let [{:keys [player-model-control]} (jme/get-state)]
@@ -47,10 +57,21 @@
                 ]
             (.set phys-pos (float (.-x phys-pos)) 
                           (float (.-y phys-pos)) 
-                          (float (+ -0.1 (.-z phys-pos))))              
+                          (float (+ -0.1 (.-z phys-pos))))
             (.setPhysicsLocation player-model-control phys-pos))
         ;; ::cam-left
-        ;;   (let [])
+        ;;   (let [
+        ;;         phys-pos (.getPhysicsLocation player-model-control)
+        ;;         _ (swap! angle + 0.1)
+        ;;         offset-x (* 15.0 (Math/cos @angle))
+        ;;         offset-z (* 15.0 (Math/sin @angle))
+        ;;         target-cam-pos (jme/vec3 (+ (.-x phys-pos) offset-x) 
+        ;;                           (+ (.-y phys-pos) 20.0) 
+        ;;                           (+ (.-z phys-pos) offset-z))
+        ;;         ]
+        ;;     (.setLocation (jme/cam) target-cam-pos)
+        ;;     (.lookAt (jme/cam) phys-pos (jme/vec3 0 0 0))
+        ;;   )
         nil
 ))))))
 
@@ -64,8 +85,8 @@
                 ::squat (jme/key-trigger KeyInput/KEY_LSHIFT)
                 ::cam-up (jme/mouse-ax-trigger MouseInput/AXIS_Y true)
                 ::cam-down (jme/mouse-ax-trigger MouseInput/AXIS_Y false)
-                ::cam-right (jme/mouse-ax-trigger MouseInput/AXIS_X true)
-                ::cam-left (jme/mouse-ax-trigger MouseInput/AXIS_X false)}
+                ::cam-right (jme/mouse-ax-trigger MouseInput/AXIS_X false)
+                ::cam-left (jme/mouse-ax-trigger MouseInput/AXIS_X true)}
                 
     :listeners {(on-analog-listner) [::cam-down ::cam-left ::cam-right ::cam-up ::forward ::backward ::left ::right]
                 (on-action-listener) [::forward ::backward ::left ::right ::squat]

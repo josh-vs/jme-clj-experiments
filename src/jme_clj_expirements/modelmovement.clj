@@ -2,13 +2,16 @@
   (:require
    [jme-clj.core :as jme]
   [jme-clj-expirements.models :as models]
-  [jme-clj-expirements.movement :as movement])
+  [jme-clj-expirements.movement :as movement]
+)
   (:import
    [com.jme3.math ColorRGBA]
    (com.jme3.bullet BulletAppState)
    (com.jme3.bullet.collision.shapes BoxCollisionShape)  
    (com.jme3.bullet.control RigidBodyControl)
-   ))
+   (com.jme3.bullet.control BetterCharacterControl)
+   (com.jme3.input ChaseCamera)
+))
 
 (defn init []
   (let [bullet-app-state (BulletAppState.)]
@@ -19,12 +22,20 @@
         {:keys [ambient-light main-light sun-light plsr]} (models/light-data)
         anim-composer (movement/find-anim-composer player-model)
         player-model-shape (BoxCollisionShape. (jme/vec3 0.2 0.0 0.2))
-        player-model-control (RigidBodyControl. player-model-shape 1)
+        player-model-control (BetterCharacterControl. player-model-shape)
         ground-shape   (BoxCollisionShape. (jme/vec3 20 0.2 20))
         ground-control (RigidBodyControl. ground-shape 0)
+        ;; chase-cam (ChaseCamera. (jme/cam) (.getSpatial player-model-control) (jme/input-manager))
+        chase-cam (ChaseCamera. (jme/cam) player-model (jme/input-manager))
       ]
       (jme/set* (jme/view-port) :background-color ColorRGBA/DarkGray)
-      (jme/set* (jme/fly-cam) :move-speed 15)
+      ;; (jme/set* (jme/fly-cam) :enabled false)
+      (.setDragToRotate chase-cam false)
+      (.setMaxDistance chase-cam 20)
+      (.setMinDistance chase-cam 20)
+      (.setDefaultDistance chase-cam 20)
+      (.setRotationSensitivity chase-cam (float 100.0))
+      (.setLookAtOffset chase-cam (jme/vec3 0 4 0))
       (movement/init-keys)
       (jme/add-light-to-root main-light)(jme/add-light-to-root sun-light)(jme/add-light-to-root ambient-light)
       (.setLight plsr main-light)(.addProcessor (jme/view-port) plsr)(.setShadowIntensity plsr 0.3)
@@ -33,7 +44,7 @@
       (jme/add-to-root player-model)
       (jme/add-control player-model player-model-control)
       (.add (.getPhysicsSpace bullet-app-state) player-model-control)
-      (.lookAt (jme/cam) (.getPhysicsLocation player-model-control) (jme/vec3 0 1 0))
+      ;; (.lookAt (jme/cam) (.getPhysicsLocation player-model-control) (jme/vec3 0 1 0))
         {
         :player-model player-model
         :anim-composer anim-composer
@@ -41,32 +52,29 @@
         :bullet-app-state bullet-app-state
         }
 )))
-
-(def angle (atom 0.0))
-
+ 
 (defn update-all [tpf]
   (let  [{:keys [player-model player-model-control]} (jme/get-state)]
     (when (and player-model player-model-control)
       (let [
           phys-pos (.getPhysicsLocation player-model-control)
-          current-cam-pos (.getLocation (jme/cam))
-          new-cam-pos (jme/vec3 0 0 0)
+          
+          phys-rot (.getPhysicsRotation player-model-control)
+          player-rot (jme/get* player-model :local-rotation)
           cam-rot (.getRotation (jme/cam))
-          cam-x (.getX cam-rot)
-          _ (swap! angle + (* tpf 0.2))
-          offset-x (* 15.0 (Math/cos @angle))
-          offset-z (* 15.0 (Math/sin @angle))
-          target-cam-pos (jme/vec3 (+ (.-x phys-pos) offset-x) 
-                            (+ (.-y phys-pos) 20.0) 
-                            (+ (.-z phys-pos) offset-z))
           ]
         (jme/set* player-model :local-translation phys-pos)
-        (let [lerp-factor (* tpf 10.0)]
-        (.interpolateLocal new-cam-pos current-cam-pos target-cam-pos 
-                        (min lerp-factor 1.0)))
-        (.setLocation (jme/cam) target-cam-pos)
+        (.setPhysicsRotation player-model-control (jme/quat (.getX player-rot)
+                                                            (.getY cam-rot)
+                                                            (.getZ player-rot) 
+                                                            (.getW cam-rot)))
+        ;; (let [lerp-factor (* tpf 10.0)]
+        ;; (.interpolateLocal new-cam-pos current-cam-pos target-cam-pos 
+        ;;                 (min lerp-factor 1.0)))
+        ;; (.setLocation (jme/cam) target-cam-pos)
         (.lookAt (jme/cam) phys-pos (jme/vec3 0 0 0))
-        (println "cam rotation:" cam-x)
+        (println "Player X:" (.getX phys-rot) "Player Y:" (.getY phys-rot) "Player Z:" (.getZ phys-rot) "Player W:" (.getW phys-rot))
+        (println "Cam X:" (.getX cam-rot) "Cam Y:" (.getY cam-rot) "Cam Z:" (.getZ cam-rot) "Cam W:" (.getW cam-rot))
         ;; (println "x:" (.-x phys-pos) "y:" (.-y phys-pos) "z:" (.-z phys-pos))
 ))))
 
