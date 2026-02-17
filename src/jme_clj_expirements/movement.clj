@@ -20,60 +20,69 @@
 
 (defn on-action-listener [] (jme/action-listener
   (fn [name pressed? tpf]
-    (when pressed?
-      (let [{:keys [anim-composer]} (jme/get-state)]
-        (case name
-          ::forward (jme/set* anim-composer :current-action "walk_loop")
-          ::squat (jme/set* anim-composer :current-action "squat_idle")
-          nil)))
-    (when (not pressed?)
-      (let [{:keys [anim-composer]} (jme/get-state)]
-        (case name
-          ::forward (jme/set* anim-composer :current-action "idle_loop")
-          ::squat (jme/set* anim-composer :current-action "idle_loop")
-          nil)))
-)))
+    (let [{:keys [anim-composer player-model-control]} (jme/get-state)]
+      (case name
+        (::forward ::backward ::left ::right)
+        (if pressed?
+          (jme/set* anim-composer :current-action "walk_loop")
+          (do
+            (jme/set* anim-composer :current-action "idle_loop")
+            (.setWalkDirection player-model-control (jme/vec3 0 0 0))))
+        ::squat
+        (if pressed?
+          (jme/set* anim-composer :current-action "squat_idle")
+          (jme/set* anim-composer :current-action "idle_loop"))
+        nil)
+))))
 
-(def angle (atom 0.0))
-(def angle-vertical (atom 0.5))
-
-(defn update-camera-position [player-pos angle-h angle-v distance]
-  (let [offset-x (* distance (Math/cos angle-h) (Math/cos angle-v))
-        offset-y (* distance (Math/sin angle-v))
-        offset-z (* distance (Math/sin angle-h) (Math/cos angle-v))]
-    (jme/vec3 (+ (.-x player-pos) offset-x)
-              (+ (.-y player-pos) offset-y)
-              (+ (.-z player-pos) offset-z))))
-
-(defn on-analog-listner [] (jme/analog-listener
-  (fn [name pressed? tpf]
+(defn on-analog-listener [] (jme/analog-listener
+  (fn [name analog-value tpf]
     (let [{:keys [player-model-control]} (jme/get-state)]
-    (when player-model-control
-      (case name 
-        ::forward 
-          (let [phys-pos (.getPhysicsLocation player-model-control)
-                ;; forward-vec (.getPhysicsRotation player-model-control)
-                ;; _ (.multLocal forward-vec (jme/vec3 0 0 (* move-speed value tpf)))]
-                ]
-            (.set phys-pos (float (.-x phys-pos)) 
-                          (float (.-y phys-pos)) 
-                          (float (+ -0.1 (.-z phys-pos))))
-            (.setPhysicsLocation player-model-control phys-pos))
-        ;; ::cam-left
-        ;;   (let [
-        ;;         phys-pos (.getPhysicsLocation player-model-control)
-        ;;         _ (swap! angle + 0.1)
-        ;;         offset-x (* 15.0 (Math/cos @angle))
-        ;;         offset-z (* 15.0 (Math/sin @angle))
-        ;;         target-cam-pos (jme/vec3 (+ (.-x phys-pos) offset-x) 
-        ;;                           (+ (.-y phys-pos) 20.0) 
-        ;;                           (+ (.-z phys-pos) offset-z))
-        ;;         ]
-        ;;     (.setLocation (jme/cam) target-cam-pos)
-        ;;     (.lookAt (jme/cam) phys-pos (jme/vec3 0 0 0))
-        ;;   )
-        nil
-))))))
+      (when player-model-control
+        (case name
+          ::forward
+          (let [forward (jme/vec3 0 0 -1)
+                cam-rot (.getRotation (jme/cam))]
+            (.mult cam-rot forward forward)
+            (.setY forward 0)
+            (when (> (.length forward) 0.001)
+              (.normalizeLocal forward)
+              (.setViewDirection player-model-control forward)
+              (.multLocal forward (float -5.0))
+              (.setWalkDirection player-model-control forward)))
+          ::backward
+          (let [backward (jme/vec3 0 0 1)
+                cam-rot (.getRotation (jme/cam))]
+            (.mult cam-rot backward backward)
+            (.setY backward 0)
+            (when (> (.length backward) 0.001)
+              (.normalizeLocal backward)
+              (.setViewDirection player-model-control backward)
+              (.multLocal backward (float -5.0))
+              (.setWalkDirection player-model-control backward)))
+          ::right
+          (let [left (jme/vec3 1 0 0)
+                cam-rot (.getRotation (jme/cam))]
+            (.mult cam-rot left left)
+            (.setY left 0)
+            (when (> (.length left) 0.001)
+              (.normalizeLocal left)
+              (.setViewDirection player-model-control left)
+              (.multLocal left (float -5.0))
+              (.setWalkDirection player-model-control left)))
+          ::left
+          (let [left (jme/vec3 -1 0 0)
+                cam-rot (.getRotation (jme/cam))]
+            (.mult cam-rot left left)
+            (.setY left 0)
+            (when (> (.length left) 0.001)
+              (.normalizeLocal left)
+              (.setViewDirection player-model-control left)
+              (.multLocal left (float -5.0))
+              (.setWalkDirection player-model-control left)))
+          nil)
+)))))
+
 
 (defn init-keys []
   (jme/apply-input-mapping
@@ -88,7 +97,7 @@
                 ::cam-right (jme/mouse-ax-trigger MouseInput/AXIS_X false)
                 ::cam-left (jme/mouse-ax-trigger MouseInput/AXIS_X true)}
                 
-    :listeners {(on-analog-listner) [::cam-down ::cam-left ::cam-right ::cam-up ::forward ::backward ::left ::right]
+    :listeners {(on-analog-listener) [::cam-down ::cam-left ::cam-right ::cam-up ::forward ::backward ::left ::right]
                 (on-action-listener) [::forward ::backward ::left ::right ::squat]
                 }
 }))
