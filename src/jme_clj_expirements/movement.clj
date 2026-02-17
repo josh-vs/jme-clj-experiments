@@ -1,7 +1,6 @@
 (ns jme-clj-expirements.movement
   (:require
    [jme-clj.core :as jme]
-  ;;  [jme-clj-expirements.models :as models]
   )
   (:import
    [com.jme3.input KeyInput MouseInput]
@@ -37,50 +36,47 @@
 
 (defn on-analog-listener [] (jme/analog-listener
   (fn [name analog-value tpf]
-    (let [{:keys [player-model-control]} (jme/get-state)]
+    (let [{:keys [player-model-control]} (jme/get-state)
+          forward (jme/vec3 0 0 -1)
+          backward (jme/vec3 0 0 1)
+          right (jme/vec3 1 0 0)
+          left (jme/vec3 -1 0 0)
+          cam-rot (.getRotation (jme/cam))]
       (when player-model-control
         (case name
-          ::forward
-          (let [forward (jme/vec3 0 0 -1)
-                cam-rot (.getRotation (jme/cam))]
-            (.mult cam-rot forward forward)
+        ::forward
+        (do (.mult cam-rot forward forward)
             (.setY forward 0)
             (when (> (.length forward) 0.001)
               (.normalizeLocal forward)
               (.setViewDirection player-model-control forward)
               (.multLocal forward (float -5.0))
               (.setWalkDirection player-model-control forward)))
-          ::backward
-          (let [backward (jme/vec3 0 0 1)
-                cam-rot (.getRotation (jme/cam))]
-            (.mult cam-rot backward backward)
+        ::backward
+        (do (.mult cam-rot backward backward)
             (.setY backward 0)
             (when (> (.length backward) 0.001)
               (.normalizeLocal backward)
               (.setViewDirection player-model-control backward)
               (.multLocal backward (float -5.0))
               (.setWalkDirection player-model-control backward)))
-          ::right
-          (let [left (jme/vec3 1 0 0)
-                cam-rot (.getRotation (jme/cam))]
-            (.mult cam-rot left left)
+        ::right
+        (do (.mult cam-rot right right)
+            (.setY right 0)
+            (when (> (.length right) 0.001)
+              (.normalizeLocal right)
+              (.setViewDirection player-model-control right)
+              (.multLocal right (float -5.0))
+              (.setWalkDirection player-model-control right)))
+        ::left
+        (do (.mult cam-rot left left)
             (.setY left 0)
             (when (> (.length left) 0.001)
               (.normalizeLocal left)
               (.setViewDirection player-model-control left)
               (.multLocal left (float -5.0))
               (.setWalkDirection player-model-control left)))
-          ::left
-          (let [left (jme/vec3 -1 0 0)
-                cam-rot (.getRotation (jme/cam))]
-            (.mult cam-rot left left)
-            (.setY left 0)
-            (when (> (.length left) 0.001)
-              (.normalizeLocal left)
-              (.setViewDirection player-model-control left)
-              (.multLocal left (float -5.0))
-              (.setWalkDirection player-model-control left)))
-          nil)
+        nil)
 )))))
 
 
