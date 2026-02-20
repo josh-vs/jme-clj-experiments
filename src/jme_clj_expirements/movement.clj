@@ -5,6 +5,7 @@
   (:import
    [com.jme3.input KeyInput MouseInput]
    [com.jme3.anim AnimComposer]
+   [com.jme3.renderer Camera]
    ))
 
 (defn find-anim-composer [spatial]
@@ -17,73 +18,41 @@
     (catch Exception e
       nil)))
 
+(def key-state (atom {::forward false ::backward false ::left false ::right false}))
+
 (defn on-action-listener [] (jme/action-listener
   (fn [name pressed? tpf]
-    (let [{:keys [anim-composer player-model-control]} (jme/get-state)]
-      (case name
-        (::forward ::backward ::left ::right)
-        (if pressed?
-          (jme/set* anim-composer :current-action "walk_loop")
-          (do
-            (jme/set* anim-composer :current-action "idle_loop")
-            (.setWalkDirection player-model-control (jme/vec3 0 0 0))))
-        ::squat
-        (if pressed?
-          (jme/set* anim-composer :current-action "squat_idle")
-          (jme/set* anim-composer :current-action "idle_loop"))
-        nil)
+    (let [{:keys [anim-composer player-model-control]} (jme/get-state)
+          cam-dir (.normalizeLocal (.setY (.getDirection (jme/cam)) 0))
+          cam-left (.normalizeLocal (.setY (.getLeft (jme/cam)) 0))
+          walk-dir (.set (com.jme3.math.Vector3f.) (jme/vec3 0 0 0))]
+      (swap! key-state assoc name pressed?)
+      (when player-model-control
+        (when (::forward @key-state)
+          (.addLocal walk-dir (.negate cam-dir)))
+        (when (::backward @key-state)
+          (.addLocal walk-dir cam-dir))
+        (when (::right @key-state)
+          (.addLocal walk-dir cam-left))
+        (when (::left @key-state)
+          (.addLocal walk-dir (.negate cam-left)))
+        (when (and (not (zero? (.lengthSquared walk-dir)))
+                   (> (.lengthSquared walk-dir) 1))
+          (.normalizeLocal walk-dir))
+        (if (zero? (.lengthSquared walk-dir))
+          (jme/set* anim-composer :current-action "idle_loop")
+          (do (.setViewDirection player-model-control walk-dir)
+              (jme/set* anim-composer :current-action "walk_loop")))
+        (jme/mult-loc walk-dir (float -5))
+        (.setWalkDirection player-model-control walk-dir))
 ))))
 
 (defn on-analog-listener [] (jme/analog-listener
-  (fn [name analog-value tpf]
-    (let [{:keys [player-model-control]} (jme/get-state)
-          forward (jme/vec3 0 0 -1)
-          backward (jme/vec3 0 0 1)
-          right (jme/vec3 1 0 0)
-          left (jme/vec3 -1 0 0)
-          cam-rot (.getRotation (jme/cam))]
-      (when player-model-control
-        (case name
-        ::forward
-        (do (.mult cam-rot forward forward)
-            (.setY forward 0)
-            (when (> (.length forward) 0.001)
-              (.normalizeLocal forward)
-              (.setViewDirection player-model-control forward)
-              (.multLocal forward (float -5.0))
-              (.setWalkDirection player-model-control forward)))
-        ::backward
-        (do (.mult cam-rot backward backward)
-            (.setY backward 0)
-            (when (> (.length backward) 0.001)
-              (.normalizeLocal backward)
-              (.setViewDirection player-model-control backward)
-              (.multLocal backward (float -5.0))
-              (.setWalkDirection player-model-control backward)))
-        ::right
-        (do (.mult cam-rot right right)
-            (.setY right 0)
-            (when (> (.length right) 0.001)
-              (.normalizeLocal right)
-              (.setViewDirection player-model-control right)
-              (.multLocal right (float -5.0))
-              (.setWalkDirection player-model-control right)))
-        ::left
-        (do (.mult cam-rot left left)
-            (.setY left 0)
-            (when (> (.length left) 0.001)
-              (.normalizeLocal left)
-              (.setViewDirection player-model-control left)
-              (.multLocal left (float -5.0))
-              (.setWalkDirection player-model-control left)))
-        nil)
-)))))
-
+  (fn [name analog-value tpf] (let [] ))))
 
 (defn init-keys []
   (jme/apply-input-mapping
-   {:triggers  {
-                ::forward (jme/key-trigger KeyInput/KEY_W)
+   {:triggers  {::forward (jme/key-trigger KeyInput/KEY_W)
                 ::backward (jme/key-trigger KeyInput/KEY_S)
                 ::left (jme/key-trigger KeyInput/KEY_A)
                 ::right (jme/key-trigger KeyInput/KEY_D)
@@ -92,7 +61,6 @@
                 ::cam-down (jme/mouse-ax-trigger MouseInput/AXIS_Y false)
                 ::cam-right (jme/mouse-ax-trigger MouseInput/AXIS_X false)
                 ::cam-left (jme/mouse-ax-trigger MouseInput/AXIS_X true)}
-                
     :listeners {(on-analog-listener) [::cam-down ::cam-left ::cam-right ::cam-up ::forward ::backward ::left ::right]
                 (on-action-listener) [::forward ::backward ::left ::right ::squat]
                 }

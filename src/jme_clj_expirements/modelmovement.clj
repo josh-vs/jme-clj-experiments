@@ -35,7 +35,6 @@
       (.setDefaultDistance chase-cam 20)
       (.setRotationSensitivity chase-cam (float 100.0))
       (.setLookAtOffset chase-cam (jme/vec3 0 4 0))
-      (movement/init-keys)
       (jme/add-light-to-root main-light)(jme/add-light-to-root sun-light)(jme/add-light-to-root ambient-light)
       (.setLight plsr main-light)(.addProcessor (jme/view-port) plsr)(.setShadowIntensity plsr 0.3)
       (.add (.getPhysicsSpace bullet-app-state) ground-control)
@@ -57,11 +56,12 @@
       (let [
           player-pos (jme/get* player-model :local-translation)
           ]
+        (movement/init-keys)
+        (.lookAt (jme/cam) player-pos (jme/vec3 0 0 0))
         ;; (let [lerp-factor (* tpf 10.0)]
         ;; (.interpolateLocal new-cam-pos current-cam-pos target-cam-pos 
         ;;                 (min lerp-factor 1.0)))
         ;; (.setLocation (jme/cam) target-cam-pos)
-        (.lookAt (jme/cam) player-pos (jme/vec3 0 0 0))
         ;; (println "Player X:" (.getX phys-rot) "Player Y:" (.getY phys-rot) "Player Z:" (.getZ phys-rot) "Player W:" (.getW phys-rot))
         ;; (println "Cam X:" (.getX cam-rot) "Cam Y:" (.getY cam-rot) "Cam Z:" (.getZ cam-rot) "Cam W:" (.getW cam-rot))
         ;; (println "x:" (.-x phys-pos) "y:" (.-y phys-pos) "z:" (.-z phys-pos))
@@ -82,6 +82,7 @@
                                 }}
   :init init
   :update update-all)
+
 (jme/start app)
 (jme/run app (jme/re-init init))
 
