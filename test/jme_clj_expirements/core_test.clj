@@ -1,6 +1,6 @@
-(ns jme-clj-expirements.core-test
+(ns jme-clj-experiments.core-test
   (:require [clojure.test :refer :all]
-            [jme-clj-expirements.core :refer :all]))
+            [jme-clj-experiments.core :refer :all]))
 
 (deftest a-test
   (testing "FIXME, I fail."

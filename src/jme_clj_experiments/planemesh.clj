@@ -1,4 +1,4 @@
-(ns jme-clj-expirements.planemesh
+(ns jme-clj-experiments.planemesh
   (:require [jme-clj.core :as jme])
   (:import  
     [com.jme3.scene Mesh VertexBuffer$Type]

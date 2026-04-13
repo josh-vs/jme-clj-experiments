@@ -1,4 +1,4 @@
-(ns jme-clj-expirements.movement
+(ns jme-clj-experiments.movement
   (:require
    [jme-clj.core :as jme]
   )

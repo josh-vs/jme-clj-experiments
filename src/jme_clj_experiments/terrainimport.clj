@@ -1,8 +1,8 @@
-(ns jme-clj-expirements.terrainimport
+(ns jme-clj-experiments.terrainimport
     (:require 
     [jme-clj.core :as jme]
-    [jme-clj-expirements.models :as models]
-    [jme-clj-expirements.movement :as movement]
+    [jme-clj-experiments.models :as models]
+    [jme-clj-experiments.movement :as movement]
     :reload
     )
     (:import

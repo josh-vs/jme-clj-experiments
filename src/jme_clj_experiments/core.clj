@@ -1,4 +1,4 @@
-(ns jme-clj-expirements.core)
+(ns jme-clj-experiments.core)
 
 (defn foo
   "I don't do a whole lot."

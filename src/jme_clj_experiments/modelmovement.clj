@@ -1,8 +1,8 @@
-(ns jme-clj-expirements.modelmovement
+(ns jme-clj-experiments.modelmovement
   (:require
   [jme-clj.core :as jme]
-  [jme-clj-expirements.models :as models]
-  [jme-clj-expirements.movement :as movement]
+  [jme-clj-experiments.models :as models]
+  [jme-clj-experiments.movement :as movement]
 )
   (:import
    [com.jme3.math ColorRGBA]

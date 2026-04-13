@@ -1,4 +1,4 @@
-(ns jme-clj-expirements.models
+(ns jme-clj-experiments.models
     (:require 
     [jme-clj.core :as jme]
     )
