@@ -1,5 +1,5 @@
 (ns jme-clj-experiments.terrainimport
-    (:require 
+    (:require
     [jme-clj.core :as jme]
     [jme-clj-experiments.models :as models]
     [jme-clj-experiments.movement :as movement]

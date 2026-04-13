@@ -1,6 +1,6 @@
 (ns jme-clj-experiments.planemesh
   (:require [jme-clj.core :as jme])
-  (:import  
+  (:import
     [com.jme3.scene Mesh VertexBuffer$Type]
     [com.jme3.math ColorRGBA]
     [com.jme3.util BufferUtils]
@@ -29,7 +29,7 @@
                       (get corners triangle-corner)))
         mesh (Mesh.)]
     ;; Convert to Java arrays and set mesh buffers
-    (.setBuffer mesh VertexBuffer$Type/Position 
+    (.setBuffer mesh VertexBuffer$Type/Position
                 3 (->> vertex-data
                        (map :position)
                        (mapcat identity)
@@ -38,7 +38,7 @@
     (.setBuffer mesh VertexBuffer$Type/Normal
                 3 (->> vertex-data
                        (map :normal)
-                       (mapcat identity) 
+                       (mapcat identity)
                        float-array
                        BufferUtils/createFloatBuffer))
     (.setBuffer mesh VertexBuffer$Type/TexCoord
@@ -71,11 +71,11 @@
     (.setParam wave-shader "SinFreq" VarType/Float (float 1.7))
     (.setParam wave-shader "WaveSpeed" VarType/Float (float 2.0))
     (.setParam wave-shader "WaveQuant" VarType/Float (float 1.2))
-    
+
     (jme/set* plane-geo :material wave-shader)
     (jme/set* plane-geo :local-translation (jme/vec3 0 -7 -7))
     (jme/add-to-root plane-geo)
-    
+
     ;; (.setVector4 shader "BaseColor" (Vector4f. 0.4 0.6 1.0 1.0))
     ;; (.setVector4 shader "Emissive" (Vector4f. 1.0 0.5 0.5 1.0))
     ;; (.setParam shader "Metallic" VarType/Float (float 1.0))

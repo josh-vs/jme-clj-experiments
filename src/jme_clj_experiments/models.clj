@@ -1,5 +1,5 @@
 (ns jme-clj-experiments.models
-    (:require 
+    (:require
     [jme-clj.core :as jme]
     )
     (:import
@@ -78,8 +78,8 @@
         ;;   ssao-filter   (com.jme3.post.ssao.SSAOFilter. 8.0 30.0 0.3 0.5)
         ]
         (-> main-light
-            (jme/set* :position (jme/vec3 5 8 5))  
-            (jme/set* :radius 40.0)  
+            (jme/set* :position (jme/vec3 5 8 5))
+            (jme/set* :radius 40.0)
             (jme/set* :color (ColorRGBA. 1.0 0.95 0.9 1.0)) ; Warm white
         )
         (-> sun-light

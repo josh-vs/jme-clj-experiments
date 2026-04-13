@@ -7,7 +7,7 @@
   (:import
    [com.jme3.math ColorRGBA]
    [com.jme3.bullet BulletAppState]
-   [com.jme3.bullet.collision.shapes BoxCollisionShape]  
+   [com.jme3.bullet.collision.shapes BoxCollisionShape]
    [com.jme3.bullet.control RigidBodyControl]
    [com.jme3.bullet.control BetterCharacterControl]
    [com.jme3.input ChaseCamera]
@@ -59,7 +59,7 @@
         (movement/init-keys)
         (.lookAt (jme/cam) player-pos (jme/vec3 0 0 0))
         ;; (let [lerp-factor (* tpf 10.0)]
-        ;; (.interpolateLocal new-cam-pos current-cam-pos target-cam-pos 
+        ;; (.interpolateLocal new-cam-pos current-cam-pos target-cam-pos
         ;;                 (min lerp-factor 1.0)))
         ;; (.setLocation (jme/cam) target-cam-pos)
         ;; (println "Player X:" (.getX phys-rot) "Player Y:" (.getY phys-rot) "Player Z:" (.getZ phys-rot) "Player W:" (.getW phys-rot))

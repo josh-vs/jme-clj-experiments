@@ -26,7 +26,7 @@ void main() {
     #ifdef HAS_SINFREQ
         SinFreq *= m_SinFreq;
     #endif
-    
+
     float WaveQuant = 1.0;
     #ifdef HAS_WAVEQUANT
         WaveQuant *= m_WaveQuant;
@@ -38,10 +38,10 @@ void main() {
     #endif
 
     vec4 modelSpacePos = vec4(inPosition, 1.0);
-    
+
     float waveZ = sin(inPosition.z * WaveQuant + WaveTime) * SinFreq;
     float waveX = cos(inPosition.x * WaveQuant + WaveTime) * SinFreq;
-    
+
     modelSpacePos.y += waveZ;
     modelSpacePos.y += waveX;
 

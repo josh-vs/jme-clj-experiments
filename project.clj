@@ -5,7 +5,7 @@
             :url "https://www.eclipse.org/legal/epl-2.0/"}
   :dependencies [[org.clojure/clojure "1.11.1"]
                  ;; jme-clj with critical exclusions
-                 [jme-clj "0.1.13" 
+                 [jme-clj "0.1.13"
                   :exclusions [com.github.stephengold/Heart
                                org.jmonkeyengine/lwjgl-platform
                                org.jmonkeyengine/jme3-core
@@ -31,7 +31,7 @@
                  [org.lwjgl/lwjgl-assimp "3.3.6" :classifier "natives-windows"]
                  [org.lwjgl/lwjgl-assimp "3.3.6" :classifier "natives-macos"]
                  ]
-  
+
   :main ^:skip-aot jme-clj-experiments.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
